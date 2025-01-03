@@ -43,12 +43,12 @@ A custom ASP.NET Core TagHelper for rendering `DateTime` values in Razor views, 
 Render a `DateTime` in UTC:
 
 ```html
-<date-time utc="2025-01-01T12:00:00Z"></date-time>
+<date-time utc="@new DateTime(2025, 3, 15, 10, 30, 0)"></date-time>
 ```
 
 Output:
 ```
-2025-01-01 12:00:00 UTC
+2025-03-15 10:30:00 AM UTC
 ```
 
 ### Specify Time Zone
@@ -56,12 +56,12 @@ Output:
 Convert `DateTime` to a specific time zone:
 
 ```html
-<date-time utc="2025-01-01T12:00:00Z" tz="America/New_York"></date-time>
+<date-time utc="@new DateTime(2025, 3, 15, 10, 30, 0)" tz="@(TimeZoneInfo.FindSystemTimeZoneById("America/New_York"))"></date-time>
 ```
 
 Output:
 ```
-2025-01-01 07:00:00 EST
+2025-03-15 6:30:00 AM ET
 ```
 
 ### Custom Format
@@ -69,12 +69,12 @@ Output:
 Specify a custom format for rendering:
 
 ```html
-<date-time utc="2025-01-01T12:00:00Z" format="MMMM dd, yyyy hh:mm tt"></date-time>
+<date-time utc="@new DateTime(2025, 3, 15, 10, 30, 0)" format="MMMM dd, yyyy hh:mm tt"></date-time>
 ```
 
 Output:
 ```
-January 01, 2025 12:00 PM
+March 15, 2025 10:30 AM UTC
 ```
 
 ### 24-Hour Format
@@ -82,12 +82,12 @@ January 01, 2025 12:00 PM
 Force the 24-hour format:
 
 ```html
-<date-time utc="2025-01-01T12:00:00Z" 24hr="true"></date-time>
+<date-time 24hr utc="@new DateTime(2025, 3, 15, 10, 30, 0)"></date-time>
 ```
 
 Output:
 ```
-2025-01-01 12:00:00
+2025-03-15 10:30:00 UTC
 ```
 
 ### Hide Time Zone
@@ -95,12 +95,12 @@ Output:
 Hide the time zone abbreviation:
 
 ```html
-<date-time utc="2025-01-01T12:00:00Z" hide-tz="true"></date-time>
+<date-time hide-tz utc="@new DateTime(2025, 3, 15, 10, 30, 0)"></date-time>
 ```
 
 Output:
 ```
-2025-01-01 12:00:00
+2025-03-15 10:30:00
 ```
 
 ### Add CSS Classes
@@ -108,12 +108,7 @@ Output:
 Add custom CSS classes for the `DateTime` and time zone:
 
 ```html
-<date-time utc="2025-01-01T12:00:00Z" dt-class="datetime" tz-class="timezone"></date-time>
-```
-
-Output:
-```html
-<span class="datetime">2025-01-01 12:00:00</span> <span class="timezone">UTC</span>
+<date-time utc="@new DateTime(2025, 3, 15, 10, 30, 0)" dt-class="text-muted" tz-class="fw-bold"></date-time>
 ```
 
 ## Configuration Options
