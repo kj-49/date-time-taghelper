@@ -43,53 +43,46 @@ public class DateTimeTagHelper : TagHelper
             return;
         }
 
-        // Check if TimeZone and DateTime are provided
-        if (Tz is not null)
+        if (Tz is null) Tz = TimeZoneInfo.Utc;
+
+        // Convert DateTime to the specified TimeZone
+        var convertedDateTime = TimeZoneInfo.ConvertTime(Utc.Value, Tz);
+
+        string formattedDateTime;
+
+        if (!string.IsNullOrEmpty(Format))
         {
-            // Convert DateTime to the specified TimeZone
-            var convertedDateTime = TimeZoneInfo.ConvertTime(Utc.Value, Tz);
-
-            string formattedDateTime;
-
-            if (!string.IsNullOrEmpty(Format))
-            {
-                formattedDateTime = convertedDateTime.ToString(Format);
-            }
-            else if (_24Hr)
-            {
-                formattedDateTime = convertedDateTime.ToString("yyyy-MM-dd HH:mm:ss");
-            }
-            else
-            {
-                formattedDateTime = convertedDateTime.ToString();
-            }
-
-            // Wrap DateTime in a span with a custom class if provided
-            if (DateTimeClass is not null)
-            {
-                formattedDateTime = $"<span class='{DateTimeClass}'>{formattedDateTime}</span>";
-            }
-
-            // If HideTimeZone is not set, append the timezone abbreviation
-            if (!HideTimeZone)
-            {
-                var timeZoneAbbreviation = GetTimeZoneAbbreviation(Tz);
-                if (TimeZoneClass is not null)
-                {
-                    timeZoneAbbreviation = $"<span class='{TimeZoneClass}'>{timeZoneAbbreviation}</span>";
-                }
-
-                formattedDateTime += $" {timeZoneAbbreviation}";
-            }
-
-            // Set the tag's content to the formatted DateTime
-            output.Content.SetHtmlContent(formattedDateTime);
+            formattedDateTime = convertedDateTime.ToString(Format);
+        }
+        else if (_24Hr)
+        {
+            formattedDateTime = convertedDateTime.ToString("yyyy-MM-dd HH:mm:ss");
         }
         else
         {
-            // If either TimeZone or DateTime is missing, set a default error message
-            output.Content.SetContent("Invalid TimeZone or DateTime.");
+            formattedDateTime = convertedDateTime.ToString();
         }
+
+        // Wrap DateTime in a span with a custom class if provided
+        if (DateTimeClass is not null)
+        {
+            formattedDateTime = $"<span class='{DateTimeClass}'>{formattedDateTime}</span>";
+        }
+
+        // If HideTimeZone is not set, append the timezone abbreviation
+        if (!HideTimeZone)
+        {
+            var timeZoneAbbreviation = GetTimeZoneAbbreviation(Tz);
+            if (TimeZoneClass is not null)
+            {
+                timeZoneAbbreviation = $"<span class='{TimeZoneClass}'>{timeZoneAbbreviation}</span>";
+            }
+
+            formattedDateTime += $" {timeZoneAbbreviation}";
+        }
+
+        // Set the tag's content to the formatted DateTime
+        output.Content.SetHtmlContent(formattedDateTime);
     }
 
     private string? GetTimeZoneAbbreviation(TimeZoneInfo timeZone)
