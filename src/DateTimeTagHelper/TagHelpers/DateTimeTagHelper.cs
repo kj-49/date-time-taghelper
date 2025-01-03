@@ -84,7 +84,7 @@ public class DateTimeTagHelper : TagHelper
         }
 
         // Convert DateTime to the specified TimeZone
-        var convertedDateTime = TimeZoneInfo.ConvertTime(Utc.Value, Tz);
+        var convertedDateTime = TimeZoneInfo.ConvertTimeFromUtc(Utc.Value, Tz);
 
         string formattedDateTime;
 
