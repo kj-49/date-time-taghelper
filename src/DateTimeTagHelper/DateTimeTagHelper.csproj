@@ -4,7 +4,21 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <PackageProjectUrl></PackageProjectUrl>
+    <Description>A tag helper for centralizing datetime display handling</Description>
+    <Title>DateTimeTagHelper</Title>
+    <RepositoryUrl>https://github.com/kj-49/DateTimeTagHelper</RepositoryUrl>
+    <PackageTags>tag helpers;datetime;</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Razor" Version="2.2.0" />
