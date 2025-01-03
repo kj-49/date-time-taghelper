@@ -1,60 +1,99 @@
-﻿using Microsoft.AspNetCore.Razor.TagHelpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DateTimeTagHelper.Configuration;
+using Microsoft.AspNetCore.Razor.TagHelpers;
+using Microsoft.Extensions.Options;
 using TimeZoneNames;
 
 namespace DateTimeTagHelper.TagHelpers;
+
+/// <summary>
+/// A TagHelper for rendering DateTime values, with support for time zones, formatting, and customizing the display.
+/// </summary>
 public class DateTimeTagHelper : TagHelper
 {
-    // DateTime in UTC (nullable)
+    private readonly DateTimeTagHelperOptions _options;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DateTimeTagHelper"/> class.
+    /// </summary>
+    /// <param name="options">The configuration options for the tag helper.</param>
+    public DateTimeTagHelper(IOptions<DateTimeTagHelperOptions> options)
+    {
+        _options = options.Value;
+    }
+
+    /// <summary>
+    /// Gets or sets the DateTime in UTC. If null, will display "Never".
+    /// </summary>
     public DateTime? Utc { get; set; }
 
-    // Timezone to display the DateTime in
+    /// <summary>
+    /// Gets or sets the TimeZone to display the DateTime in. If null, the default time zone from options will be used.
+    /// </summary>
     public TimeZoneInfo Tz { get; set; }
 
-    // The format in which to render the DateTime, this will override the 24hr setting
+    /// <summary>
+    /// Gets or sets the format in which to render the DateTime. This overrides the 24-hour format setting.
+    /// If not provided, a default format is used.
+    /// </summary>
     public string? Format { get; set; }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether to display the time in 24-hour format.
+    /// This overrides any other format settings.
+    /// </summary>
     [HtmlAttributeName("24hr")]
     public bool _24Hr { get; set; }
 
-    // Whether to hide the timezone abbreviation
+    /// <summary>
+    /// Gets or sets a value indicating whether to hide the timezone abbreviation.
+    /// Defaults to false.
+    /// </summary>
     [HtmlAttributeName("hide-tz")]
     public bool HideTimeZone { get; set; } = false;
 
-    // CSS class for the formatted DateTime
+    /// <summary>
+    /// Gets or sets the CSS class for the formatted DateTime.
+    /// </summary>
     [HtmlAttributeName("dt-class")]
     public string? DateTimeClass { get; set; }
 
-    // CSS class for the TimeZone abbreviation
+    /// <summary>
+    /// Gets or sets the CSS class for the TimeZone abbreviation.
+    /// </summary>
     [HtmlAttributeName("tz-class")]
     public string? TimeZoneClass { get; set; }
 
-    // Process method to render the DateTime
+    /// <summary>
+    /// Processes the DateTime tag and renders it as an HTML string.
+    /// </summary>
+    /// <param name="context">The context of the tag helper.</param>
+    /// <param name="output">The output of the tag helper, where the result will be written.</param>
     public override void Process(TagHelperContext context, TagHelperOutput output)
     {
         // If Utc is null, display "Never" with no timezone
-        if (Utc == null)
+        if (Utc is null)
         {
             output.Content.SetContent("Never");
             return;
         }
 
-        if (Tz is null) Tz = TimeZoneInfo.Utc;
+        // Use the default timezone if none is provided
+        if (Tz is null)
+        {
+            Tz = TimeZoneInfo.FindSystemTimeZoneById(_options.DefaultTimeZone);
+        }
 
         // Convert DateTime to the specified TimeZone
         var convertedDateTime = TimeZoneInfo.ConvertTime(Utc.Value, Tz);
 
         string formattedDateTime;
 
+        // Use the provided format or fallback to 24-hour format if specified
         if (!string.IsNullOrEmpty(Format))
         {
             formattedDateTime = convertedDateTime.ToString(Format);
         }
-        else if (_24Hr)
+        else if (_24Hr || _options.Default24Hr)
         {
             formattedDateTime = convertedDateTime.ToString("yyyy-MM-dd HH:mm:ss");
         }
@@ -70,7 +109,7 @@ public class DateTimeTagHelper : TagHelper
         }
 
         // If HideTimeZone is not set, append the timezone abbreviation
-        if (!HideTimeZone)
+        if (!HideTimeZone && !_options.DefaultHideTimeZone)
         {
             var timeZoneAbbreviation = GetTimeZoneAbbreviation(Tz);
             if (TimeZoneClass is not null)
@@ -85,9 +124,13 @@ public class DateTimeTagHelper : TagHelper
         output.Content.SetHtmlContent(formattedDateTime);
     }
 
+    /// <summary>
+    /// Gets the abbreviation for the given time zone.
+    /// </summary>
+    /// <param name="timeZone">The time zone information.</param>
+    /// <returns>The time zone abbreviation, or null if it cannot be found.</returns>
     private string? GetTimeZoneAbbreviation(TimeZoneInfo timeZone)
     {
         return TZNames.GetAbbreviationsForTimeZone(timeZone.Id, "en-US").Generic;
     }
 }
-
