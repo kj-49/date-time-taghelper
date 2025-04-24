@@ -2,6 +2,9 @@
 
 A custom ASP.NET Core TagHelper for rendering `DateTime` values in Razor views, with support for time zone conversion, customizable formatting, and CSS styling.
 
+## Purpose
+This tag helper was created to **centralize** datetime conversion and rendering. In business-critical applications, datetimes can be essential. This tag helper ensures datetimes are converted correctly and displayed accurately. 
+
 ## Features
 
 - Convert `DateTime` values to a specified time zone.
