@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.Extensions.Options;
+using System.Globalization;
 using TimeZoneNames;
 
 namespace DateTimeTagHelper.TagHelpers;
@@ -104,15 +105,15 @@ public class DateTimeTagHelper : TagHelper
         // Use the provided format or fallback to 24-hour format if specified
         if (!string.IsNullOrEmpty(Format))
         {
-            formattedDateTime = convertedDateTime.ToString(Format);
+            formattedDateTime = convertedDateTime.ToString(Format, CultureInfo.InvariantCulture);
         }
         else if (_24Hr || _options.Default24Hr)
         {
-            formattedDateTime = convertedDateTime.ToString("yyyy-MM-dd HH:mm:ss");
+            formattedDateTime = convertedDateTime.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
         }
         else
         {
-            formattedDateTime = convertedDateTime.ToString();
+            formattedDateTime = convertedDateTime.ToString(CultureInfo.InvariantCulture);
         }
 
         // Wrap DateTime in a span with a custom class if provided
