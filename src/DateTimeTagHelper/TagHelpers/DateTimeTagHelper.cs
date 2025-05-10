@@ -1,4 +1,5 @@
 ﻿using DateTimeTagHelper.Configuration;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.Extensions.Options;
 using TimeZoneNames;
@@ -11,14 +12,16 @@ namespace DateTimeTagHelper.TagHelpers;
 public class DateTimeTagHelper : TagHelper
 {
     private readonly DateTimeTagHelperOptions _options;
+    private readonly IHttpContextAccessor? _httpContextAccessor;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DateTimeTagHelper"/> class.
     /// </summary>
     /// <param name="options">The configuration options for the tag helper.</param>
-    public DateTimeTagHelper(IOptions<DateTimeTagHelperOptions> options)
+    public DateTimeTagHelper(IOptions<DateTimeTagHelperOptions> options, IHttpContextAccessor? httpContextAccessor)
     {
         _options = options.Value;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     /// <summary>
@@ -80,7 +83,17 @@ public class DateTimeTagHelper : TagHelper
         // Use the default timezone if none is provided
         if (Tz is null)
         {
-            Tz = TimeZoneInfo.FindSystemTimeZoneById(_options.DefaultTimeZone);
+            // Try to get the resolved time zone from the current HttpContext
+            var httpContext = _httpContextAccessor?.HttpContext;
+            if (httpContext?.Items.TryGetValue("UserTimeZone", out var userTz) == true && userTz is TimeZoneInfo tz)
+            {
+                Tz = tz;
+            }
+            else
+            {
+                // Fall back to default
+                Tz = TimeZoneInfo.FindSystemTimeZoneById(_options.DefaultTimeZone);
+            }
         }
 
         // Convert DateTime to the specified TimeZone
