@@ -1,0 +1,29 @@
+name: Run Tests
+
+on:
+  push:
+    branches: [workflow]
+  pull_request:
+    branches: [workflow]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore ./test/DateTimeTagHelper.Tests/DateTimeTagHelper.Tests.csproj
+
+      - name: Build
+        run: dotnet build ./test/DateTimeTagHelper.Tests/DateTimeTagHelper.Tests.csproj --no-restore --configuration Release
+
+      - name: Run tests
+        run: dotnet test ./test/DateTimeTagHelper.Tests/DateTimeTagHelper.Tests.csproj --no-build --configuration Release --logger trx
